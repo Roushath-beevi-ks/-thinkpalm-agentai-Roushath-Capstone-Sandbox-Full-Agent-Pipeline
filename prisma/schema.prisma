@@ -1,0 +1,42 @@
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Cross-session preferences (e.g. strict lint) keyed by client session id
+model UserPreference {
+  id          String   @id @default(cuid())
+  sessionKey  String   @unique
+  strictLint  Boolean  @default(false)
+  preferA11y  Boolean  @default(true)
+  maxFixFiles Int      @default(3)
+  notes       String?
+  updatedAt   DateTime @updatedAt
+}
+
+/// Vector-friendly memory: summary + optional embedding JSON for similarity
+model ReviewMemory {
+  id         String   @id @default(cuid())
+  sessionKey String
+  title      String
+  summary    String
+  embedding  String?
+  createdAt  DateTime @default(now())
+
+  @@index([sessionKey])
+}
+
+model PipelineRun {
+  id         String   @id @default(cuid())
+  sessionKey String
+  traceJson  String
+  createdAt  DateTime @default(now())
+
+  @@index([sessionKey])
+}
